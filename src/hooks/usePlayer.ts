@@ -4,65 +4,80 @@ import { Card, Player, PlayerStatus } from "../types/types";
 const DEFAULT_PLAYER = {
   status: PlayerStatus.READY,
   score: 0,
-  cards: [],
-  currentHandValue: 0,
+  hand: {
+    cards: [],
+    totalValue: 0,
+  },
+  showHand: false,
 };
 
 /**
- * This hook wraps functionality relating to a player
+ * This hook wraps functionality relating to a player or dealer
  */
 const usePlayer = () => {
   const [player, setPlayer] = useState<Player>(DEFAULT_PLAYER);
 
   /**
-   * Gives the player a card and checks if they are bust, sets their new score and status
+   * Gives the player a card and checks if they are bust, sets their new score and status.
    */
-  const givePlayerACard = (card: Card) => {
-    const { cards, currentHandValue, status } = player;
-    const { value } = card;
-    const newScore = currentHandValue + value;
-    setPlayer({
-      ...player,
-      currentHandValue: newScore,
-      status: newScore > 21 ? PlayerStatus.BUST : status, // if they go over 21 set the as bust
-      cards: [...cards, card],
+  const giveACard = (card: Card) => {
+    setPlayer((prevState) => {
+      const { hand, status } = prevState;
+      const { totalValue, cards } = hand;
+      const { value } = card;
+      const newTotalValue = totalValue + value;
+      return {
+        ...prevState,
+        status: newTotalValue > 21 ? PlayerStatus.BUST : status, // if they go over 21 then they are bust
+        hand: {
+          ...hand,
+          cards: [...cards, card],
+          totalValue: newTotalValue,
+        },
+      };
     });
   };
 
-  const reset = () => {
-    setPlayer(DEFAULT_PLAYER);
-  };
-
-  const resetPlayerRoundData = () => {
+  const resetHand = () => {
     setPlayer({
       ...player,
-      currentHandValue: 0,
+      hand: {
+        totalValue: 0,
+        cards: [],
+      },
+      showHand: false,
       status: PlayerStatus.READY,
-      cards: [],
     });
   };
 
-  const setPlayerScore = (score: number) => {
+  const setScore = (score: number) => {
     setPlayer({
       ...player,
       score,
     });
   };
 
-  const setPlayerStatus = (status: PlayerStatus) => {
+  const setStatus = (status: PlayerStatus) => {
     setPlayer({
       ...player,
       status,
     });
   };
 
+  const setShowHand = (showHand: boolean) => {
+    setPlayer({
+      ...player,
+      showHand,
+    });
+  };
+
   return {
-    reset,
-    resetPlayerRoundData,
+    resetHand,
     player,
-    setPlayerScore,
-    setPlayerStatus,
-    givePlayerACard,
+    setScore,
+    setStatus,
+    giveACard,
+    setShowHand,
   };
 };
 

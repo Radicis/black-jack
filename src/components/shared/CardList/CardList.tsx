@@ -16,8 +16,13 @@ const CardList = ({ showHandValue, currentHandValue, cards }: Props) => {
         {showHandValue ? currentHandValue : "??"}
       </div>
       <div className="flex gap-2">
-        {cards.map((card: Card) => (
-          <RenderCard key={v4()} card={card} />
+        {cards.map((card: Card, idx) => (
+          <RenderCard
+            key={v4()}
+            suit={card.suit}
+            faceUp={idx === 0 || showHandValue} // We hide the second card until hand is revealed
+            label={card.label}
+          />
         ))}
       </div>
     </div>

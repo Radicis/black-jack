@@ -8,7 +8,7 @@ export enum Suit {
 export enum PlayerStatus {
   STICK = "stick",
   BUST = "bust",
-  READY = "reacy",
+  READY = "ready",
 }
 
 /**
@@ -19,14 +19,18 @@ export type Card = {
   suit: Suit;
   value: number;
   label: string;
-  faceUp: boolean;
+};
+
+export type Hand = {
+  totalValue: number;
+  cards: Card[];
 };
 
 export type Player = {
   score: number;
   status: PlayerStatus;
-  currentHandValue: number;
-  cards: Card[];
+  hand: Hand;
+  showHand: boolean;
 };
 
 export type Deck = {

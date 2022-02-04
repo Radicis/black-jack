@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Suit } from "../../../types/types";
+import { Suit } from "../../../types/types";
 import {
   faDizzy,
   faGrinStars,
@@ -10,7 +10,9 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 type Props = {
-  card: Card;
+  suit: Suit;
+  label: string;
+  faceUp: boolean;
 };
 
 const suitMap = {
@@ -20,8 +22,7 @@ const suitMap = {
   spade: faMeh,
 };
 
-const RenderCard = ({ card }: Props) => {
-  const { suit, label, faceUp } = card;
+const RenderCard = ({ suit, label, faceUp }: Props) => {
   const suitIcon = suitMap[Suit[suit] as Suit];
   return (
     <div
