@@ -4,6 +4,7 @@ import CardCount from "./CardCount/CardCount";
 import Controls from "../Controls/Controls";
 import Dealer from "./Dealer/Dealer";
 import useBlackJack from "../../hooks/useBlackJack";
+import Characters from "./Characters/Characters";
 
 const Game = () => {
   const {
@@ -16,7 +17,7 @@ const Game = () => {
     numCardsLeft,
   } = useBlackJack();
   return (
-    <main className="flex flex-col items-center justify-center gap-4">
+    <main className="flex flex-col relative p-4 h-full">
       {gameInitialised ? (
         <>
           <Dealer
@@ -36,6 +37,7 @@ const Game = () => {
       ) : (
         <div>Waiting to start the game</div>
       )}
+      <Characters />
       {/*<Scores players={players} />*/}
       <Controls
         onReset={() => console.log("Reset")}

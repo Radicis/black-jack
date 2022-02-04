@@ -70,7 +70,6 @@ const usePlayer = () => {
       showHand,
     });
   };
-
   return {
     resetHand,
     player,
@@ -78,6 +77,7 @@ const usePlayer = () => {
     setStatus,
     giveACard,
     setShowHand,
+    setPlayer,
   };
 };
 

@@ -8,7 +8,7 @@ import usePlayer from "./usePlayer";
  * It leverages the useDeck hook to abstract deck manipulation
  */
 const useBlackJack = () => {
-  const { getNextCard, numCardsLeft, reShuffleDeck, getNextCards } = useDeck();
+  const { getNextCard, numCardsLeft, getNextCards, drawUntil } = useDeck();
 
   const {
     player,
@@ -23,10 +23,12 @@ const useBlackJack = () => {
     resetHand: resetDealerHand,
     giveACard: giveDealerACard,
     setShowHand: setShowDealerHand,
+    setPlayer: setDealerData,
   } = usePlayer();
 
   const [gameInitialised, setGameInitialised] = useState<boolean>(false);
   const [roundActive, setRoundActive] = useState<boolean>(false);
+  const [isWinner, setIsWinner] = useState<boolean>(false);
 
   /**
    * Resets their round score and status and deals them a card face up
@@ -72,53 +74,43 @@ const useBlackJack = () => {
   };
 
   /**
-   * When the deck is empty we can reshuffle it
-   */
-  const reShuffle = () => {
-    reShuffleDeck(); // create a new deck
-    newRound();
-  };
-
-  const calculateScores = () => {
-    const { hand } = dealer;
-    const { totalValue } = hand;
-    if (totalValue > 21) {
-      alert("Dealer bust");
-      // everyone NOT bust, gets money
-      const { status, score } = player;
-      if (status !== PlayerStatus.BUST) {
-        setPlayerScore(score + 1);
-      }
-    } else {
-      // everyone higher than dealer get money
-      const { status, hand: playerHand, score } = player;
-      const { totalValue: totalPlayerHandValue } = playerHand;
-      if (status !== PlayerStatus.BUST && totalPlayerHandValue > totalValue) {
-        setPlayerScore(score + 1);
-      }
-    }
-  };
-
-  /**
    * Dealer does dealer things, draws up to (or over) 17
    * Then scores are calculated and shown
    */
   const endRound = () => {
+    setIsWinner(false);
     console.debug("Ending round..");
-    setShowDealerHand(true);
-    calculateScores();
-    // newRound();
+    setRoundActive(false);
+    // Figure out the target the dealer needs
+    const { hand, status } = player;
+    const { hand: dealerHand } = dealer;
+    // If the player is bust, dealer wins anyway
+    if (status !== PlayerStatus.BUST) {
+      // If the player has a "Five Card Charlie" then they win
+      if (hand.cards.length >= 5) {
+        setIsWinner(true);
+      }
+      const target = hand.totalValue + 1;
+      // Give the dealer a card until he busts or sticks
+      const { isBust, handValue, drawnCards } = drawUntil(
+        dealerHand.totalValue,
+        target
+      );
+      // Update the dealers data
+      setDealerData({
+        ...dealer,
+        status: isBust ? PlayerStatus.BUST : PlayerStatus.STICK,
+        showHand: true,
+        hand: {
+          ...dealerHand,
+          cards: [...dealerHand.cards, ...drawnCards],
+          totalValue: handValue,
+        },
+      });
+    } else {
+      setIsWinner(false);
+    }
   };
-
-  // useEffect(() => {
-  //   if (!roundActive) {
-  //     if (dealer.hand.totalValue > 21) {
-  //       setDealerStatus(PlayerStatus.BUST);
-  //     } else {
-  //       giveDealerACard(getNextCard());
-  //     }
-  //   }
-  // }, [roundActive, dealer.hand]);
 
   useEffect(() => {
     if (
@@ -138,7 +130,6 @@ const useBlackJack = () => {
     setPlayerSticks: () => setPlayerStatus(PlayerStatus.STICK),
     givePlayerACard: () => givePlayerACard(getNextCard()),
     numCardsLeft,
-    reShuffle,
   };
 };
 

@@ -5,7 +5,7 @@ const suits = Object.keys(Suit);
 // Create an array of numbers from 0 to 13
 const values = Array.from({ length: 13 }, (v, index) => index + 1);
 
-const DEFAULT_DECK_COUNT = 6; // use 6 decks
+const DEFAULT_DECK_COUNT = 1; // use 6 decks
 
 /**
  * This hook wraps functionality relating to management of a deck of cards to be used in a game
@@ -67,7 +67,12 @@ const useDeck = (deckCount: number = DEFAULT_DECK_COUNT) => {
    * it can be face up or down, defaults to true
    */
   const getNextCard = (faceUp = true): Card => {
-    const updatedCards = [...cards];
+    let updatedCards = [...cards];
+    // If we have run out of cards then reshuffle the deck(s)
+    if (cards.length === 0) {
+      updatedCards = cutDeck(shuffleDeck(originalCards));
+      console.log(updatedCards.length);
+    }
     const nextCard = updatedCards.pop();
     setCards(updatedCards);
     return { ...nextCard, faceUp } as Card;
@@ -91,10 +96,58 @@ const useDeck = (deckCount: number = DEFAULT_DECK_COUNT) => {
    *
    */
   const getNextCards = (numberToGet: number): Card[] => {
-    const updatedCards = [...cards];
+    let updatedCards = [...cards];
+    // If we have run out of cards then reshuffle the deck(s)
+    if (cards.length < numberToGet) {
+      console.debug("Reshuffling..");
+      updatedCards = cutDeck(shuffleDeck(originalCards));
+    }
     const nextCards = updatedCards.slice(0, numberToGet);
-    setCards(updatedCards.slice(numberToGet, updatedCards.length - 1));
+    setCards(updatedCards.slice(numberToGet, updatedCards.length));
     return nextCards;
+  };
+
+  /**
+   * Draws cards (usually for the dealer) until the specified target or bust
+   */
+  const drawUntil = (currentHandValue: number, target: number) => {
+    console.debug("Drawing until: ", target);
+    const drawnCards = [];
+    let handValue = currentHandValue;
+    let isBust = false;
+    let atTarget = false;
+    // Get all  the remaining cards in the deck
+    let remainingCards = cards;
+
+    let idx = 0;
+
+    while (!(isBust || atTarget)) {
+      drawnCards.push(remainingCards[idx]);
+      console.debug(`Dealer draws: ${JSON.stringify(remainingCards[idx])}`);
+      // and the value of the drawn card and check
+      handValue = remainingCards[idx].value + handValue;
+      if (handValue > 21) {
+        console.debug("Bust on: ", handValue);
+        isBust = true;
+      } else if (handValue >= target) {
+        console.debug("At target: ", handValue);
+        atTarget = true;
+      }
+      idx = idx + 1;
+      // if we fun out of cards, reshuffle
+      if (idx === remainingCards.length) {
+        remainingCards = cutDeck(shuffleDeck(generateDeck(deckCount)));
+        idx = 0;
+      }
+    }
+
+    // "Draw" the cards that we "used" and update the deck in state
+    setCards(remainingCards.slice(idx, remainingCards.length));
+
+    console.debug({ drawnCards, handValue, isBust });
+
+    // If we are still not bust or 21, reshuffle and continue
+    return { drawnCards, handValue, isBust };
   };
 
   const initDeck = () => {
@@ -104,10 +157,6 @@ const useDeck = (deckCount: number = DEFAULT_DECK_COUNT) => {
     setOriginalCards(newCards);
   };
 
-  const reShuffleDeck = () => {
-    setCards(cutDeck(shuffleDeck(originalCards)));
-  };
-
   useEffect(() => {
     // On initial load, generate the deck(s) shuffle and cut them
     initDeck();
@@ -115,10 +164,10 @@ const useDeck = (deckCount: number = DEFAULT_DECK_COUNT) => {
 
   return {
     initDeck,
-    reShuffleDeck,
     numCardsLeft: cards.length,
     getNextCard,
     getNextCards,
+    drawUntil,
   };
 };
 
