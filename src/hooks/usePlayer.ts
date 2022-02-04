@@ -70,6 +70,7 @@ const usePlayer = () => {
       showHand,
     });
   };
+
   return {
     resetHand,
     player,

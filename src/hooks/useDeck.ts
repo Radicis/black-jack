@@ -5,7 +5,7 @@ const suits = Object.keys(Suit);
 // Create an array of numbers from 0 to 13
 const values = Array.from({ length: 13 }, (v, index) => index + 1);
 
-const DEFAULT_DECK_COUNT = 1; // use 6 decks
+const DEFAULT_DECK_COUNT = 6; // use 6 decks
 
 /**
  * This hook wraps functionality relating to management of a deck of cards to be used in a game
@@ -108,7 +108,8 @@ const useDeck = (deckCount: number = DEFAULT_DECK_COUNT) => {
   };
 
   /**
-   * Draws cards (usually for the dealer) until the specified target or bust
+   * Draws cards (usually for the dealer) until the specified target or bust and returns
+   * the new cards + total hand value and bust flag to the caller
    */
   const drawUntil = (currentHandValue: number, target: number) => {
     console.debug("Drawing until: ", target);
@@ -127,10 +128,10 @@ const useDeck = (deckCount: number = DEFAULT_DECK_COUNT) => {
       // and the value of the drawn card and check
       handValue = remainingCards[idx].value + handValue;
       if (handValue > 21) {
-        console.debug("Bust on: ", handValue);
+        console.debug("Dealer Bust on: ", handValue);
         isBust = true;
       } else if (handValue >= target) {
-        console.debug("At target: ", handValue);
+        console.debug("Dealer At target: ", handValue);
         atTarget = true;
       }
       idx = idx + 1;
@@ -144,8 +145,6 @@ const useDeck = (deckCount: number = DEFAULT_DECK_COUNT) => {
     // "Draw" the cards that we "used" and update the deck in state
     setCards(remainingCards.slice(idx, remainingCards.length));
 
-    console.debug({ drawnCards, handValue, isBust });
-
     // If we are still not bust or 21, reshuffle and continue
     return { drawnCards, handValue, isBust };
   };
@@ -153,12 +152,12 @@ const useDeck = (deckCount: number = DEFAULT_DECK_COUNT) => {
   const initDeck = () => {
     const newCards = cutDeck(shuffleDeck(generateDeck(deckCount)));
     setCards(newCards);
-    // We store the original cards so we can reshuffle
+    // We store the original cards too so we can reshuffle
     setOriginalCards(newCards);
   };
 
+  // On initial load, generate the deck(s) shuffle and cut them
   useEffect(() => {
-    // On initial load, generate the deck(s) shuffle and cut them
     initDeck();
   }, []);
 

@@ -27,8 +27,8 @@ const useBlackJack = () => {
   } = usePlayer();
 
   const [gameInitialised, setGameInitialised] = useState<boolean>(false);
-  const [roundActive, setRoundActive] = useState<boolean>(false);
-  const [isWinner, setIsWinner] = useState<boolean>(false);
+  const [playerIsWinner, setPlayerIsIsWinner] = useState<boolean>(false);
+  const [bet, setBet] = useState<number>(10);
 
   /**
    * Resets their round score and status and deals them a card face up
@@ -52,23 +52,17 @@ const useBlackJack = () => {
     giveDealerACard(card2);
   };
 
-  const initGame = async () => {
-    // get the next 4 cards
-    const [p1, p2, d1, d2] = getNextCards(4);
-    await initialisePlayerHand(p1, p2);
-    await initialiseDealerHand(d1, d2);
-    setGameInitialised(true);
-    // Start the round
-    setRoundActive(true);
-  };
-
   /**
+   * Initializes the game round.
    * Deals one card to the player and 2 to the dealer, one face up and one down
    */
-  const newRound = () => {
+  const startNewRound = () => {
+    setPlayerIsIsWinner(false);
+    console.debug("Starting new round.. ");
     setShowDealerHand(false);
     // get the next 4 cards
     const [p1, p2, d1, d2] = getNextCards(4);
+    setGameInitialised(true);
     initialisePlayerHand(p1, p2);
     initialiseDealerHand(d1, d2);
   };
@@ -78,9 +72,7 @@ const useBlackJack = () => {
    * Then scores are calculated and shown
    */
   const endRound = () => {
-    setIsWinner(false);
     console.debug("Ending round..");
-    setRoundActive(false);
     // Figure out the target the dealer needs
     const { hand, status } = player;
     const { hand: dealerHand } = dealer;
@@ -88,7 +80,8 @@ const useBlackJack = () => {
     if (status !== PlayerStatus.BUST) {
       // If the player has a "Five Card Charlie" then they win
       if (hand.cards.length >= 5) {
-        setIsWinner(true);
+        setPlayerIsIsWinner(true);
+        setPlayerScore(player.score + bet);
       }
       const target = hand.totalValue + 1;
       // Give the dealer a card until he busts or sticks
@@ -107,8 +100,17 @@ const useBlackJack = () => {
           totalValue: handValue,
         },
       });
+      // If the dealer is bust then the player wins, if not, dealer wins
+      if (isBust) {
+        setPlayerIsIsWinner(true);
+        setPlayerScore(player.score + bet);
+      } else {
+        setPlayerIsIsWinner(false);
+        setPlayerScore(player.score - bet);
+      }
     } else {
-      setIsWinner(false);
+      setPlayerIsIsWinner(false);
+      setPlayerScore(player.score - bet);
     }
   };
 
@@ -123,13 +125,15 @@ const useBlackJack = () => {
 
   return {
     gameInitialised,
-    initGame,
+    bet,
+    setBet,
     player,
     dealer,
-    roundActive,
+    startNewRound,
     setPlayerSticks: () => setPlayerStatus(PlayerStatus.STICK),
     givePlayerACard: () => givePlayerACard(getNextCard()),
     numCardsLeft,
+    playerIsWinner,
   };
 };
 
