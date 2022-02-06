@@ -19,7 +19,7 @@ const Player = ({
 }: Props) => {
   return (
     <section className="flex flex-col gap-4 items-center relative">
-      <div>{name}</div>
+      <div className="font-bold text-lg">{name}</div>
       {status === "bust" && (
         <div className="font-medium text-xl text-white absolute w-full h-full opacity-90 bg-gray-700 flex items-center justify-center">
           YOU BUST
@@ -27,7 +27,7 @@ const Player = ({
       )}
       {status === "stick" && (
         <div className="font-medium text-xl text-white absolute w-full h-full opacity-90 bg-gray-700 flex items-center justify-center">
-          STICK
+          STICK on {currentHandValue}
         </div>
       )}
       <CardList

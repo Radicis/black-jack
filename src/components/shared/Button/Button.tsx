@@ -8,7 +8,7 @@ const Button = forwardRef(
   ) => {
     return (
       <button
-        className="font-medium border border-gray-600 rounded-full bg-gray-100 border-gray-700 px-4 py-2"
+        className="font-medium border border-gray-600 rounded-lg bg-gray-100 border-gray-700 px-4 py-2"
         ref={ref}
         {...props}
       >

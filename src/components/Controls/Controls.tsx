@@ -23,7 +23,7 @@ const Controls = ({
   onSetBet,
 }: Props) => {
   return (
-    <div className="absolute self-center gap-4 p-4 flex flex-col items-center justify-center rounded-full border-t-2 border-red-400 bg-gray-800">
+    <div className="self-center bottom-0 gap-4 px-12 py-6 flex flex-col items-center shadow-lg justify-center rounded-lg  border-t-2 border-red-400 bg-gray-800">
       <div className="flex gap-8">
         {gameInitialised && !roundActive && (
           <Button onClick={onNewRound}>Next Hand</Button>
@@ -36,11 +36,8 @@ const Controls = ({
           </div>
         )}
       </div>
-      <div className="flex gap-8">
-        <label
-          htmlFor="bet"
-          className="block text-sm font-medium text-gray-700"
-        >
+      <div className="flex gap-8 items-center">
+        <label htmlFor="bet" className="block font-medium text-gray-100">
           Bet:{" "}
         </label>
         <select
@@ -55,7 +52,7 @@ const Controls = ({
           <option>50</option>
         </select>
       </div>
-      <div className="flex gap-8">
+      <div className="flex gap-8 text-gray-100">
         <div>Score: {score}</div>
         <div>Cards Left: {numCardsLeft}</div>
       </div>

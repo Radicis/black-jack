@@ -12,7 +12,7 @@ type Props = {
 const CardList = ({ showHandValue, currentHandValue, cards }: Props) => {
   return (
     <div className="flex flex-col items-center gap-4">
-      <div className="border border-gray-300 bg-gray-200 px-2 py-1 rounded">
+      <div className="border border-gray-300 bg-gray-200 px-4 py-2 rounded">
         {showHandValue ? currentHandValue : "??"}
       </div>
       <div className="flex gap-2">

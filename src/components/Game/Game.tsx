@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import useBlackJack from "../../hooks/useBlackJack";
 import Player from "./Player/Player";
 import Controls from "../Controls/Controls";
@@ -17,9 +17,9 @@ const Game = () => {
   } = useBlackJack();
 
   return (
-    <main className="flex flex-col relative p-4 h-full gap-8">
+    <main className="flex flex-col relative p-4 gap-8 height-full">
       {gameIsInitialised ? (
-        <div className="flex gap-8 self-center">
+        <div className="flex flex-col md:flex-row gap-8 self-center ">
           <Player
             showHandValue
             status={player.status}
@@ -36,7 +36,9 @@ const Game = () => {
           />
         </div>
       ) : (
-        <div>Waiting to start the game</div>
+        <div className="text-xl font-medium flex items-center justify-center">
+          Waiting to start the game
+        </div>
       )}
       <Controls
         roundActive={roundActive}

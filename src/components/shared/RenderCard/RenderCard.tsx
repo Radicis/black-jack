@@ -26,7 +26,7 @@ const RenderCard = ({ suit, label, faceUp }: Props) => {
   const suitIcon = suitMap[suit];
   return (
     <div
-      className={`border border-black p-4 shadow flex flex-col gap-2 items-center text-2xl ${
+      className={`border border-gray-500 p-6 flex flex-col rounded-lg shadow-lg gap-2 items-center text-2xl ${
         faceUp ? "opacity-100" : "opacity-20"
       }`}
     >
