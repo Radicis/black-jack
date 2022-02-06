@@ -1,0 +1,43 @@
+{
+  "env": {
+    "browser": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "plugins": [
+    "react",
+    "ts"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "rules": {
+    "linebreak-style": "off",
+    "semi": [
+      "error",
+      "always"
+    ],
+    "ts/no-any": "error",
+    "@typescript-eslint/ban-ts-comment": "off",
+    "import/no-anonymous-default-export": "off"
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/*.stories.*"
+      ],
+      "rules": {
+        "import/no-anonymous-default-export": "off"
+      }
+    }
+  ]
+}
