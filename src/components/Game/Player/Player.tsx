@@ -20,12 +20,12 @@ const Player = ({
 }: Props) => {
   return (
     <section className="flex flex-col gap-4 items-center relative">
-      {status === PlayerStatus.BUST && (
+      {status === "bust" && (
         <div className="font-medium text-xl text-white absolute w-full h-full opacity-90 bg-gray-700 flex items-center justify-center">
           YOU BUST
         </div>
       )}
-      {status === PlayerStatus.STICK && (
+      {status === "stick" && (
         <div className="font-medium text-xl text-white absolute w-full h-full opacity-90 bg-gray-700 flex items-center justify-center">
           STICK
         </div>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { Card, Suit } from "../types/types";
+import { Card, suits as availableSuits } from "../types/types";
 
-const suits = Object.keys(Suit);
+const suits = Object.keys(availableSuits);
 // Create an array of numbers from 0 to 13
 const values = Array.from({ length: 13 }, (v, index) => index + 1);
 
@@ -11,7 +11,7 @@ const DEFAULT_DECK_COUNT = 6; // use 6 decks
  * This hook wraps functionality relating to management of a deck of cards to be used in a game
  * You can pass it deckCount to set how many decks ot be shuffled together
  */
-const useDeck = (deckCount: number = DEFAULT_DECK_COUNT) => {
+export default function useDeck(deckCount: number = DEFAULT_DECK_COUNT) {
   const [originalCards, setOriginalCards] = useState<Card[]>([]);
   const [cards, setCards] = useState<Card[]>([]);
 
@@ -52,7 +52,7 @@ const useDeck = (deckCount: number = DEFAULT_DECK_COUNT) => {
   /**
    * Generates a flattened array of 52 * deckCount Card objects and shuffles them.
    */
-  const generateDeck = (deckCount: number) => {
+  const generateDeck = (deckCount: number): Card[] => {
     const valueMap = ["J", "Q", "K"];
     // Reduce suits, then the numbers and merge them into one flat array, then shuffle
     const createDeck = () => {
@@ -65,7 +65,6 @@ const useDeck = (deckCount: number = DEFAULT_DECK_COUNT) => {
               {
                 suit,
                 value: value < 11 ? value : 10, // Face cards are 10
-                faceUp: true,
                 label: value < 11 ? value.toString() : valueMap[value - 11], // converts 11-13 to j/q/k
               } as Card,
             ];
@@ -81,7 +80,7 @@ const useDeck = (deckCount: number = DEFAULT_DECK_COUNT) => {
    * Returns the next card to the component implementing this hook
    * it can be face up or down, defaults to true
    */
-  const getNextCard = (faceUp = true): Card => {
+  const getNextCard = (): Card => {
     let updatedCards = [...cards];
     // If we have run out of cards then reshuffle the deck(s)
     if (updatedCards.length === 0) {
@@ -90,7 +89,7 @@ const useDeck = (deckCount: number = DEFAULT_DECK_COUNT) => {
     }
     const nextCard = updatedCards.shift();
     setCards(updatedCards);
-    return { ...nextCard, faceUp } as Card;
+    return nextCard as Card;
   };
 
   /**
@@ -136,7 +135,10 @@ const useDeck = (deckCount: number = DEFAULT_DECK_COUNT) => {
    * Draws cards (usually for the dealer) until the specified target or bust and returns
    * the new cards + total hand value and bust flag to the caller
    */
-  const drawUntil = (currentHandValue: number, target: number) => {
+  const drawUntil = (
+    currentHandValue: number,
+    target: number
+  ): { drawnCards: Card[]; handValue: number; isBust: boolean } => {
     console.debug("Drawing until: ", target);
     const drawnCards = [];
     let handValue = currentHandValue;
@@ -189,6 +191,4 @@ const useDeck = (deckCount: number = DEFAULT_DECK_COUNT) => {
     getNextCards,
     drawUntil,
   };
-};
-
-export default useDeck;
+}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Card, PlayerStatus } from "../types/types";
+import { Card } from "../types/types";
 import useDeck from "./useDeck";
 import usePlayer from "./usePlayer";
 
@@ -7,7 +7,7 @@ import usePlayer from "./usePlayer";
  * This hook wraps functionality relating to management of a game of black jack
  * It leverages the useDeck hook to abstract deck manipulation and usePlayer to abstract players
  */
-const useBlackJack = () => {
+export default function useBlackJack() {
   const { getNextCard, numCardsLeft, getNextCards, drawUntil } = useDeck();
 
   const {
@@ -29,8 +29,6 @@ const useBlackJack = () => {
   const [gameIsInitialised, setGameIsInitialised] = useState<boolean>(false);
   const [playerIsWinner, setPlayerIsIsWinner] = useState<boolean>(false);
   const [currentBet, setCurrentBet] = useState<number>(10);
-
-  console.log("Render");
 
   /**
    * Resets their round score and status and deals them a card face up
@@ -80,7 +78,7 @@ const useBlackJack = () => {
     const { hand, status } = player;
     const { hand: dealerHand } = dealer;
     // If the player is bust, dealer wins anyway
-    if (status !== PlayerStatus.BUST) {
+    if (status !== "bust") {
       // If the player has a "Five Card Charlie" then they win
       if (hand.cards.length >= 5) {
         setPlayerIsIsWinner(true);
@@ -95,7 +93,7 @@ const useBlackJack = () => {
       // Update the dealers data
       setDealerData({
         ...dealer,
-        status: isBust ? PlayerStatus.BUST : PlayerStatus.STICK,
+        status: isBust ? "bust" : "stick",
         showHand: true,
         hand: {
           ...dealerHand,
@@ -122,10 +120,7 @@ const useBlackJack = () => {
    * This could be expanded for multiple players
    */
   useEffect(() => {
-    if (
-      player.status === PlayerStatus.STICK ||
-      player.status === PlayerStatus.BUST
-    ) {
+    if (player.status === "stick" || player.status === "bust") {
       endRound();
     }
   }, [player.status]);
@@ -134,14 +129,13 @@ const useBlackJack = () => {
     gameIsInitialised,
     currentBet,
     setCurrentBet,
+    endRound,
     player,
     dealer,
     startNewRound,
-    setPlayerSticks: () => setPlayerStatus(PlayerStatus.STICK),
+    setPlayerSticks: () => setPlayerStatus("stick"),
     givePlayerACard: () => givePlayerACard(getNextCard()),
     numCardsLeft,
     playerIsWinner,
   };
-};
-
-export default useBlackJack;
+}

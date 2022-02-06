@@ -1,10 +1,10 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 import useDeck from "./useDeck";
-import { Card, Suit } from "../types/types";
+import { Card } from "../types/types";
 
 const MOCK_CARD = {
   label: "Test",
-  suit: Suit.club,
+  suit: "club",
   value: 10,
 };
 
@@ -149,10 +149,9 @@ describe("useDeck Hook", () => {
     // With one deck we start with 42 cards
     expect(result.current.numCardsLeft).toEqual(42);
 
-    // Let's draw some so there aren't enough left for draw X
-    let burnCards: Card[] = [];
+    // Burn some cards
     act(() => {
-      burnCards = result.current.getNextCards(32);
+      result.current.getNextCards(32);
     });
 
     // Ensure they were drawn
@@ -193,5 +192,52 @@ describe("useDeck Hook", () => {
 
     // @ts-ignore - throws not defined, that's ok
     expect(singleCard).toEqual(shuffledCards[0]); // should be the 10th card since we got next 5 then next 4
+  });
+  it("should drawUntil - draw cards up to a target of 0 -> 21", () => {
+    const { result } = renderHook(() => useDeck(1));
+
+    let drawResult = {
+      drawnCards: [],
+      handValue: 0,
+      isBust: false,
+    } as { drawnCards: Card[]; handValue: number; isBust: boolean };
+
+    Array.from({ length: 21 }, (v, index) => index + 1).forEach((target) => {
+      act(() => {
+        drawResult = result.current.drawUntil(5, target);
+      });
+
+      expect(drawResult.handValue).toBeGreaterThanOrEqual(target);
+      expect(drawResult.isBust).toEqual(drawResult.handValue > 21);
+    });
+  });
+  it("should drawUntil - draw cards up to a target and reshuffle once current deck is empty", () => {
+    const { result } = renderHook(() => useDeck(1));
+
+    // With one deck we start with 42 cards
+    expect(result.current.numCardsLeft).toEqual(42);
+
+    // Burn some cards and leave 1
+    act(() => {
+      result.current.getNextCards(41);
+    });
+
+    expect(result.current.numCardsLeft).toEqual(1);
+
+    let drawResult = {
+      drawnCards: [],
+      handValue: 0,
+      isBust: false,
+    } as { drawnCards: Card[]; handValue: number; isBust: boolean };
+
+    act(() => {
+      drawResult = result.current.drawUntil(8, 21);
+    });
+
+    // Make sure at least 1 cards came off the new deck
+    expect(result.current.numCardsLeft).toBeGreaterThanOrEqual(41);
+
+    expect(drawResult.handValue).toBeGreaterThanOrEqual(21);
+    expect(drawResult.isBust).toEqual(drawResult.handValue > 21);
   });
 });

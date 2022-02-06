@@ -1,10 +1,10 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 import usePlayer from "./usePlayer";
-import { PlayerStatus, Suit } from "../types/types";
+import { Suit } from "../types/types";
 
 const MOCK_CARD = {
   label: "Test",
-  suit: Suit.club,
+  suit: "club" as Suit,
   value: 10,
 };
 
@@ -25,7 +25,7 @@ describe("usePlayer Hook", () => {
   it("should init with the default player", () => {
     const { result } = renderHook(() => usePlayer());
     expect(result.current.player).toEqual({
-      status: PlayerStatus.READY,
+      status: "ready",
       score: 0,
       hand: {
         cards: [],
@@ -43,7 +43,7 @@ describe("usePlayer Hook", () => {
 
     expect(
       expect(result.current.player).toEqual({
-        status: PlayerStatus.READY,
+        status: "ready",
         score: 0,
         hand: {
           cards: [MOCK_CARD],
@@ -68,7 +68,7 @@ describe("usePlayer Hook", () => {
 
     expect(
       expect(result.current.player).toEqual({
-        status: PlayerStatus.BUST,
+        status: "bust",
         score: 0,
         hand: {
           cards: [MOCK_CARD, MOCK_CARD, MOCK_CARD],
@@ -88,7 +88,7 @@ describe("usePlayer Hook", () => {
       result.current.setScore(10);
     });
     act(() => {
-      result.current.setStatus(PlayerStatus.BUST);
+      result.current.setStatus("bust");
     });
 
     act(() => {
@@ -97,7 +97,7 @@ describe("usePlayer Hook", () => {
 
     expect(
       expect(result.current.player).toEqual({
-        status: PlayerStatus.READY,
+        status: "ready",
         score: 10,
         hand: {
           cards: [],
@@ -114,7 +114,7 @@ describe("usePlayer Hook", () => {
       result.current.giveACard(MOCK_CARD);
     });
     act(() => {
-      result.current.setStatus(PlayerStatus.BUST);
+      result.current.setStatus("bust");
     });
 
     act(() => {
@@ -123,7 +123,7 @@ describe("usePlayer Hook", () => {
 
     expect(
       expect(result.current.player).toEqual({
-        status: PlayerStatus.BUST,
+        status: "bust",
         score: 100,
         hand: {
           cards: [MOCK_CARD],
@@ -145,11 +145,11 @@ describe("usePlayer Hook", () => {
     });
 
     act(() => {
-      result.current.setStatus(PlayerStatus.BUST);
+      result.current.setStatus("bust");
     });
     expect(
       expect(result.current.player).toEqual({
-        status: PlayerStatus.BUST,
+        status: "bust",
         score: 100,
         hand: {
           cards: [MOCK_CARD],
@@ -169,7 +169,7 @@ describe("usePlayer Hook", () => {
       result.current.setScore(100);
     });
     act(() => {
-      result.current.setStatus(PlayerStatus.BUST);
+      result.current.setStatus("bust");
     });
 
     act(() => {
@@ -178,7 +178,7 @@ describe("usePlayer Hook", () => {
 
     expect(
       expect(result.current.player).toEqual({
-        status: PlayerStatus.BUST,
+        status: "bust",
         score: 100,
         hand: {
           cards: [MOCK_CARD],

@@ -1,15 +1,7 @@
-export enum Suit {
-  heart = "heart",
-  diamond = "diamond",
-  club = "club",
-  spade = "spade",
-}
+export const suits = ["heart", "diamond", "club", "spade"] as const;
+export type Suit = typeof suits[number];
 
-export enum PlayerStatus {
-  STICK = "stick",
-  BUST = "bust",
-  READY = "ready",
-}
+export type PlayerStatus = "stick" | "bust" | "ready";
 
 /**
  * Models a Card object representing teh cards suit and value, wit the value being numerical from 1 -> 13

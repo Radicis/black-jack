@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, Player, PlayerStatus } from "../types/types";
 
 const DEFAULT_PLAYER = {
-  status: PlayerStatus.READY,
+  status: "ready" as PlayerStatus,
   score: 0,
   hand: {
     cards: [],
@@ -28,7 +28,7 @@ const usePlayer = () => {
       const newTotalValue = totalValue + value;
       return {
         ...prevState,
-        status: newTotalValue > 21 ? PlayerStatus.BUST : status, // if they go over 21 then they are bust
+        status: newTotalValue > 21 ? "bust" : status, // if they go over 21 then they are bust
         hand: {
           ...hand,
           cards: [...cards, card],
@@ -46,7 +46,7 @@ const usePlayer = () => {
         cards: [],
       },
       showHand: false,
-      status: PlayerStatus.READY,
+      status: "ready",
     });
   };
 
