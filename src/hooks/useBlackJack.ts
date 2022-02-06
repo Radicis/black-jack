@@ -5,7 +5,7 @@ import usePlayer from "./usePlayer";
 
 /**
  * This hook wraps functionality relating to management of a game of black jack
- * It leverages the useDeck hook to abstract deck manipulation
+ * It leverages the useDeck hook to abstract deck manipulation and usePlayer to abstract players
  */
 const useBlackJack = () => {
   const { getNextCard, numCardsLeft, getNextCards, drawUntil } = useDeck();
@@ -26,9 +26,11 @@ const useBlackJack = () => {
     setPlayer: setDealerData,
   } = usePlayer();
 
-  const [gameInitialised, setGameInitialised] = useState<boolean>(false);
+  const [gameIsInitialised, setGameIsInitialised] = useState<boolean>(false);
   const [playerIsWinner, setPlayerIsIsWinner] = useState<boolean>(false);
-  const [bet, setBet] = useState<number>(10);
+  const [currentBet, setCurrentBet] = useState<number>(10);
+
+  console.log("Render");
 
   /**
    * Resets their round score and status and deals them a card face up
@@ -42,13 +44,14 @@ const useBlackJack = () => {
     givePlayerACard(card2);
   };
 
+  /**
+   * Initialise the dealers hand by setting show to false and dealing them 2 cards
+   */
   const initialiseDealerHand = (card1: Card, card2: Card) => {
     console.debug("Init dealer hand");
     setShowDealerHand(false);
     resetDealerHand();
-    // Get the dealers first face up card
     giveDealerACard(card1);
-    // Get the dealers next card
     giveDealerACard(card2);
   };
 
@@ -62,7 +65,7 @@ const useBlackJack = () => {
     setShowDealerHand(false);
     // get the next 4 cards
     const [p1, p2, d1, d2] = getNextCards(4);
-    setGameInitialised(true);
+    setGameIsInitialised(true);
     initialisePlayerHand(p1, p2);
     initialiseDealerHand(d1, d2);
   };
@@ -81,7 +84,7 @@ const useBlackJack = () => {
       // If the player has a "Five Card Charlie" then they win
       if (hand.cards.length >= 5) {
         setPlayerIsIsWinner(true);
-        setPlayerScore(player.score + bet);
+        setPlayerScore(player.score + currentBet);
       }
       const target = hand.totalValue + 1;
       // Give the dealer a card until he busts or sticks
@@ -103,17 +106,21 @@ const useBlackJack = () => {
       // If the dealer is bust then the player wins, if not, dealer wins
       if (isBust) {
         setPlayerIsIsWinner(true);
-        setPlayerScore(player.score + bet);
+        setPlayerScore(player.score + currentBet);
       } else {
         setPlayerIsIsWinner(false);
-        setPlayerScore(player.score - bet);
+        setPlayerScore(player.score - currentBet);
       }
     } else {
       setPlayerIsIsWinner(false);
-      setPlayerScore(player.score - bet);
+      setPlayerScore(player.score - currentBet);
     }
   };
 
+  /**
+   * When the player.status updates, we want to check if they are "done" with their turn and trigger endRound
+   * This could be expanded for multiple players
+   */
   useEffect(() => {
     if (
       player.status === PlayerStatus.STICK ||
@@ -124,9 +131,9 @@ const useBlackJack = () => {
   }, [player.status]);
 
   return {
-    gameInitialised,
-    bet,
-    setBet,
+    gameIsInitialised,
+    currentBet,
+    setCurrentBet,
     player,
     dealer,
     startNewRound,

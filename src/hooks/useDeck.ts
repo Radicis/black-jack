@@ -15,7 +15,7 @@ const useDeck = (deckCount: number = DEFAULT_DECK_COUNT) => {
   const [originalCards, setOriginalCards] = useState<Card[]>([]);
   const [cards, setCards] = useState<Card[]>([]);
 
-  // Fisher-Yates algorithm -> https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
+  // Shameless Fisher-Yates algorithm -> https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
   const shuffleDeck = (deck: Card[]) => {
     for (let i = deck.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -24,6 +24,21 @@ const useDeck = (deckCount: number = DEFAULT_DECK_COUNT) => {
       deck[j] = temp;
     }
     return deck;
+  };
+
+  const initDeck = () => {
+    const newCards = shuffleDeck(generateDeck(deckCount));
+    setCards(cutDeck(newCards));
+    // We store the original, uncut cards too so we can reshuffle
+    setOriginalCards(newCards);
+  };
+
+  /**
+   * This is to allow the consuming component to reshuffle, not the internal functions
+   * as the internal functions generally don't want to set the state
+   */
+  const reShuffleDeck = () => {
+    setCards(cutDeck(shuffleDeck(originalCards)));
   };
 
   /**
@@ -69,11 +84,11 @@ const useDeck = (deckCount: number = DEFAULT_DECK_COUNT) => {
   const getNextCard = (faceUp = true): Card => {
     let updatedCards = [...cards];
     // If we have run out of cards then reshuffle the deck(s)
-    if (cards.length === 0) {
+    if (updatedCards.length === 0) {
+      console.debug("Reshuffling..");
       updatedCards = cutDeck(shuffleDeck(originalCards));
-      console.log(updatedCards.length);
     }
-    const nextCard = updatedCards.pop();
+    const nextCard = updatedCards.shift();
     setCards(updatedCards);
     return { ...nextCard, faceUp } as Card;
   };
@@ -96,14 +111,24 @@ const useDeck = (deckCount: number = DEFAULT_DECK_COUNT) => {
    *
    */
   const getNextCards = (numberToGet: number): Card[] => {
-    let updatedCards = [...cards];
-    // If we have run out of cards then reshuffle the deck(s)
+    const updatedCards = [...cards];
+    let nextCards: Card[] = [];
+    // If we have run out of cards then take the remaining and reshuffle the deck(s)
     if (cards.length < numberToGet) {
+      // Grab the last cards remaining in the current deck
       console.debug("Reshuffling..");
-      updatedCards = cutDeck(shuffleDeck(originalCards));
+      const reShuffledDeck = cutDeck(shuffleDeck(originalCards));
+      const cardsFromReshuffledDeck = reShuffledDeck.slice(
+        0,
+        updatedCards.length
+      );
+      nextCards = [...updatedCards, ...cardsFromReshuffledDeck];
+      setCards(reShuffledDeck.slice(cardsFromReshuffledDeck.length));
+    } else {
+      nextCards = updatedCards.slice(0, numberToGet);
+      setCards(updatedCards.slice(numberToGet));
     }
-    const nextCards = updatedCards.slice(0, numberToGet);
-    setCards(updatedCards.slice(numberToGet, updatedCards.length));
+
     return nextCards;
   };
 
@@ -118,7 +143,7 @@ const useDeck = (deckCount: number = DEFAULT_DECK_COUNT) => {
     let isBust = false;
     let atTarget = false;
     // Get all  the remaining cards in the deck
-    let remainingCards = cards;
+    let remainingCards = [...cards];
 
     let idx = 0;
 
@@ -135,34 +160,30 @@ const useDeck = (deckCount: number = DEFAULT_DECK_COUNT) => {
         atTarget = true;
       }
       idx = idx + 1;
-      // if we fun out of cards, reshuffle
+      // if we run out of cards, reshuffle
       if (idx === remainingCards.length) {
-        remainingCards = cutDeck(shuffleDeck(generateDeck(deckCount)));
+        remainingCards = [...cutDeck(shuffleDeck(originalCards))];
+        setCards(remainingCards);
         idx = 0;
       }
     }
 
     // "Draw" the cards that we "used" and update the deck in state
-    setCards(remainingCards.slice(idx, remainingCards.length));
+    setCards(remainingCards.slice(idx));
 
     // If we are still not bust or 21, reshuffle and continue
     return { drawnCards, handValue, isBust };
   };
 
-  const initDeck = () => {
-    const newCards = cutDeck(shuffleDeck(generateDeck(deckCount)));
-    setCards(newCards);
-    // We store the original cards too so we can reshuffle
-    setOriginalCards(newCards);
-  };
-
-  // On initial load, generate the deck(s) shuffle and cut them
+  /** On initial load, generate the deck(s) shuffle and cut them */
   useEffect(() => {
     initDeck();
   }, []);
 
   return {
+    cards,
     initDeck,
+    shuffleDeck: reShuffleDeck,
     numCardsLeft: cards.length,
     getNextCard,
     getNextCards,

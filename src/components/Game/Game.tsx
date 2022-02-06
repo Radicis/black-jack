@@ -9,7 +9,7 @@ const Game = () => {
   const {
     player,
     dealer,
-    gameInitialised,
+    gameIsInitialised,
     setPlayerSticks,
     givePlayerACard,
     numCardsLeft,
@@ -17,7 +17,7 @@ const Game = () => {
   } = useBlackJack();
   return (
     <main className="flex flex-col relative p-4 h-full">
-      {gameInitialised ? (
+      {gameIsInitialised ? (
         <>
           <Dealer
             showDealerHand={dealer.showHand}
@@ -36,7 +36,10 @@ const Game = () => {
       ) : (
         <div>Waiting to start the game</div>
       )}
-      <Controls onNewRound={startNewRound} gameInitialised={gameInitialised} />
+      <Controls
+        onNewRound={startNewRound}
+        gameInitialised={gameIsInitialised}
+      />
     </main>
   );
 };

@@ -26,6 +26,7 @@
       "error",
       "always"
     ],
-    "ts/no-any": "error"
+    "ts/no-any": "error",
+    "@typescript-eslint/ban-ts-comment": "off"
   }
 }
