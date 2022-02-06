@@ -10,7 +10,7 @@ When tasked with creating a Black Jack game, I found that much of the functional
 * Deck (useDeck) and player (usePlayer) management are abstracted to provide flexibility if you want to change the game
   logic
 * Functional programming with modern react hooks
-* Full text coverage (not including the example app)
+* Full test coverage (not including the example app)
 
 ## Available Scripts
 
