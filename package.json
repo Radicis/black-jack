@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "start": "react-scripts start",
-    "test": "react-scripts test --testPathIgnorePatterns=examples --coverage"
+    "test": "react-scripts test"
   },
   "browserslist": {
     "production": [

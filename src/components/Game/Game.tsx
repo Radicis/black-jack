@@ -1,7 +1,7 @@
 import React from "react";
+import useBlackJack from "../../hooks/useBlackJack";
 import Player from "./Player/Player";
 import Controls from "../Controls/Controls";
-import useBlackJack from "../../../src/hooks/useBlackJack";
 
 const Game = () => {
   const {
@@ -21,14 +21,14 @@ const Game = () => {
       {gameIsInitialised ? (
         <div className="flex gap-8 self-center">
           <Player
-            showHand
+            showHandValue
             status={player.status}
             cards={player.hand.cards}
             currentHandValue={player.hand.totalValue}
             name="Player"
           />
           <Player
-            showHand={dealer.showHand}
+            showHandValue={dealer.showHand}
             currentHandValue={dealer.hand.totalValue}
             cards={dealer.hand.cards}
             name="Dealer"
@@ -42,7 +42,7 @@ const Game = () => {
         roundActive={roundActive}
         onGetNextCard={givePlayerACard}
         onStick={setPlayerSticks}
-        cardsLeft={numCardsLeft}
+        numCardsLeft={numCardsLeft}
         score={player.score}
         onSetBet={setCurrentBet}
         onNewRound={startNewRound}
