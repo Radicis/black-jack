@@ -1,12 +1,12 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 import useBlackJack from "./useBlackJack";
 import useDeck from "./useDeck";
-import { Card, PlayerStatus } from "../types/types";
+import { Card, PlayerStatus, Suit } from "../types/types";
 import usePlayer from "./usePlayer";
 
 const MOCK_CARD = {
   label: "Test",
-  suit: "club",
+  suit: "club" as Suit,
   value: 10,
 };
 
@@ -65,6 +65,7 @@ describe("useBlackJack Hook", () => {
       "currentBet",
       "setCurrentBet",
       "endRound",
+      "roundActive",
       "player",
       "dealer",
       "startNewRound",
@@ -213,7 +214,7 @@ describe("useBlackJack Hook", () => {
     expect(mockSetScore).toHaveBeenCalledWith(-10);
   });
 
-  it("should endRound and the player", () => {
+  it("should endRound and the player wins", () => {
     const mockDrawUntil = jest.fn().mockImplementation(() => ({
       isBust: true,
       handValue: 100,
@@ -253,6 +254,92 @@ describe("useBlackJack Hook", () => {
         cards: [MOCK_CARD],
       },
     });
+    expect(result.current.playerIsWinner).toEqual(true);
+    expect(mockSetScore).toHaveBeenCalledTimes(1);
+    expect(mockSetScore).toHaveBeenCalledWith(10);
+  });
+
+  it("should endRound and the player is bust", () => {
+    const mockDrawUntil = jest.fn().mockImplementation(() => ({
+      isBust: true,
+      handValue: 100,
+      drawnCards: [MOCK_CARD],
+    }));
+
+    mockedUseDeck.mockReturnValue({
+      ...mockedUseDeckValue,
+      drawUntil: mockDrawUntil,
+    });
+
+    const mockSetScore = jest.fn();
+    const mockSetPlayer = jest.fn();
+
+    mockedUsePlayer.mockReturnValue({
+      ...mockedUsePlayerValue,
+      player: {
+        status: "bust" as PlayerStatus,
+        score: 0,
+        hand: {
+          cards: [MOCK_CARD, MOCK_CARD, MOCK_CARD, MOCK_CARD, MOCK_CARD], // give him a charlie
+          totalValue: 18,
+        },
+        showHand: false,
+      },
+      setScore: mockSetScore,
+      setPlayer: mockSetPlayer,
+    });
+
+    const { result } = renderHook(() => useBlackJack());
+
+    act(() => {
+      result.current.endRound();
+    });
+
+    expect(mockDrawUntil).not.toHaveBeenCalled(); // we should skip it here as the player auto loses
+    expect(mockSetPlayer).not.toHaveBeenCalled();
+    expect(result.current.playerIsWinner).toEqual(false);
+    expect(mockSetScore).toHaveBeenCalledWith(-10);
+  });
+
+  it("should endRound and the player wins on a 5 card charlie", () => {
+    const mockDrawUntil = jest.fn().mockImplementation(() => ({
+      isBust: true,
+      handValue: 100,
+      drawnCards: [MOCK_CARD],
+    }));
+
+    mockedUseDeck.mockReturnValue({
+      ...mockedUseDeckValue,
+      drawUntil: mockDrawUntil,
+    });
+
+    const mockSetScore = jest.fn();
+    const mockSetPlayer = jest.fn();
+
+    mockedUsePlayer.mockReturnValue({
+      ...mockedUsePlayerValue,
+      player: {
+        status: "ready" as PlayerStatus,
+        score: 0,
+        hand: {
+          cards: [MOCK_CARD, MOCK_CARD, MOCK_CARD, MOCK_CARD, MOCK_CARD], // give him a charlie
+          totalValue: 18,
+        },
+        showHand: false,
+      },
+      setScore: mockSetScore,
+      setPlayer: mockSetPlayer,
+    });
+
+    const { result } = renderHook(() => useBlackJack());
+
+    act(() => {
+      result.current.endRound();
+    });
+
+    expect(mockDrawUntil).not.toHaveBeenCalled(); // we should skip it here as the player auto wins
+    expect(mockSetScore).toHaveBeenCalledTimes(1);
+    expect(mockSetPlayer).not.toHaveBeenCalled();
     expect(result.current.playerIsWinner).toEqual(true);
     expect(mockSetScore).toHaveBeenCalledTimes(1);
     expect(mockSetScore).toHaveBeenCalledWith(10);

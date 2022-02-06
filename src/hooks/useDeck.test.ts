@@ -234,8 +234,8 @@ describe("useDeck Hook", () => {
       drawResult = result.current.drawUntil(8, 21);
     });
 
-    // Make sure at least 1 cards came off the new deck
-    expect(result.current.numCardsLeft).toBeGreaterThanOrEqual(41);
+    // Make sure at least some cards came off the new deck
+    expect(result.current.numCardsLeft).toBeGreaterThanOrEqual(40);
 
     expect(drawResult.handValue).toBeGreaterThanOrEqual(21);
     expect(drawResult.isBust).toEqual(drawResult.handValue > 21);

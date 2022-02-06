@@ -1,42 +1,50 @@
 import React from "react";
 import Player from "./Player/Player";
-import CardCount from "./CardCount/CardCount";
 import Controls from "../Controls/Controls";
-import Dealer from "./Dealer/Dealer";
-import useBlackJack from "../../hooks/useBlackJack";
+import useBlackJack from "../../../src/hooks/useBlackJack";
 
 const Game = () => {
   const {
     player,
     dealer,
     gameIsInitialised,
+    roundActive,
     setPlayerSticks,
     givePlayerACard,
     numCardsLeft,
     startNewRound,
+    setCurrentBet,
   } = useBlackJack();
+
   return (
-    <main className="flex flex-col relative p-4 h-full">
+    <main className="flex flex-col relative p-4 h-full gap-8">
       {gameIsInitialised ? (
-        <>
-          <Dealer
-            showDealerHand={dealer.showHand}
-            currentHandValue={dealer.hand.totalValue}
-            cards={dealer.hand.cards}
-          />
+        <div className="flex gap-8 self-center">
           <Player
+            showHand
             status={player.status}
-            onGetNextCard={givePlayerACard}
             cards={player.hand.cards}
             currentHandValue={player.hand.totalValue}
-            onStick={setPlayerSticks}
+            name="Player"
           />
-          <CardCount numCardsLeft={numCardsLeft} />
-        </>
+          <Player
+            showHand={dealer.showHand}
+            currentHandValue={dealer.hand.totalValue}
+            cards={dealer.hand.cards}
+            name="Dealer"
+            status={dealer.status}
+          />
+        </div>
       ) : (
         <div>Waiting to start the game</div>
       )}
       <Controls
+        roundActive={roundActive}
+        onGetNextCard={givePlayerACard}
+        onStick={setPlayerSticks}
+        cardsLeft={numCardsLeft}
+        score={player.score}
+        onSetBet={setCurrentBet}
         onNewRound={startNewRound}
         gameInitialised={gameIsInitialised}
       />

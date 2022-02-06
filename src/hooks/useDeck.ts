@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Card, suits as availableSuits } from "../types/types";
 
-const suits = Object.keys(availableSuits);
 // Create an array of numbers from 0 to 13
 const values = Array.from({ length: 13 }, (v, index) => index + 1);
 
@@ -56,7 +55,7 @@ export default function useDeck(deckCount: number = DEFAULT_DECK_COUNT) {
     const valueMap = ["J", "Q", "K"];
     // Reduce suits, then the numbers and merge them into one flat array, then shuffle
     const createDeck = () => {
-      return suits.reduce((acc: Card[], suit: string) => {
+      return availableSuits.reduce((acc: Card[], suit: string) => {
         return [
           ...acc,
           ...values.reduce((valAcc: Card[], value: number) => {
@@ -84,7 +83,6 @@ export default function useDeck(deckCount: number = DEFAULT_DECK_COUNT) {
     let updatedCards = [...cards];
     // If we have run out of cards then reshuffle the deck(s)
     if (updatedCards.length === 0) {
-      console.debug("Reshuffling..");
       updatedCards = cutDeck(shuffleDeck(originalCards));
     }
     const nextCard = updatedCards.shift();
@@ -115,7 +113,6 @@ export default function useDeck(deckCount: number = DEFAULT_DECK_COUNT) {
     // If we have run out of cards then take the remaining and reshuffle the deck(s)
     if (cards.length < numberToGet) {
       // Grab the last cards remaining in the current deck
-      console.debug("Reshuffling..");
       const reShuffledDeck = cutDeck(shuffleDeck(originalCards));
       const cardsFromReshuffledDeck = reShuffledDeck.slice(
         0,
@@ -139,7 +136,6 @@ export default function useDeck(deckCount: number = DEFAULT_DECK_COUNT) {
     currentHandValue: number,
     target: number
   ): { drawnCards: Card[]; handValue: number; isBust: boolean } => {
-    console.debug("Drawing until: ", target);
     const drawnCards = [];
     let handValue = currentHandValue;
     let isBust = false;
@@ -151,14 +147,11 @@ export default function useDeck(deckCount: number = DEFAULT_DECK_COUNT) {
 
     while (!(isBust || atTarget)) {
       drawnCards.push(remainingCards[idx]);
-      console.debug(`Dealer draws: ${JSON.stringify(remainingCards[idx])}`);
       // and the value of the drawn card and check
       handValue = remainingCards[idx].value + handValue;
       if (handValue > 21) {
-        console.debug("Dealer Bust on: ", handValue);
         isBust = true;
       } else if (handValue >= target) {
-        console.debug("Dealer At target: ", handValue);
         atTarget = true;
       }
       idx = idx + 1;

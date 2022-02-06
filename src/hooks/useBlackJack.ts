@@ -28,13 +28,13 @@ export default function useBlackJack() {
 
   const [gameIsInitialised, setGameIsInitialised] = useState<boolean>(false);
   const [playerIsWinner, setPlayerIsIsWinner] = useState<boolean>(false);
+  const [roundActive, setRoundActive] = useState<boolean>(false);
   const [currentBet, setCurrentBet] = useState<number>(10);
 
   /**
    * Resets their round score and status and deals them a card face up
    */
   const initialisePlayerHand = (card1: Card, card2: Card) => {
-    console.debug("Init player hand");
     // Reset the players hand and status if they have one
     resetPlayerHand();
     // Get the next 2 cards for the player
@@ -46,7 +46,6 @@ export default function useBlackJack() {
    * Initialise the dealers hand by setting show to false and dealing them 2 cards
    */
   const initialiseDealerHand = (card1: Card, card2: Card) => {
-    console.debug("Init dealer hand");
     setShowDealerHand(false);
     resetDealerHand();
     giveDealerACard(card1);
@@ -59,13 +58,13 @@ export default function useBlackJack() {
    */
   const startNewRound = () => {
     setPlayerIsIsWinner(false);
-    console.debug("Starting new round.. ");
     setShowDealerHand(false);
     // get the next 4 cards
     const [p1, p2, d1, d2] = getNextCards(4);
     setGameIsInitialised(true);
     initialisePlayerHand(p1, p2);
     initialiseDealerHand(d1, d2);
+    setRoundActive(true);
   };
 
   /**
@@ -73,7 +72,7 @@ export default function useBlackJack() {
    * Then scores are calculated and shown
    */
   const endRound = () => {
-    console.debug("Ending round..");
+    setRoundActive(false);
     // Figure out the target the dealer needs
     const { hand, status } = player;
     const { hand: dealerHand } = dealer;
@@ -83,31 +82,32 @@ export default function useBlackJack() {
       if (hand.cards.length >= 5) {
         setPlayerIsIsWinner(true);
         setPlayerScore(player.score + currentBet);
-      }
-      const target = hand.totalValue + 1;
-      // Give the dealer a card until he busts or sticks
-      const { isBust, handValue, drawnCards } = drawUntil(
-        dealerHand.totalValue,
-        target
-      );
-      // Update the dealers data
-      setDealerData({
-        ...dealer,
-        status: isBust ? "bust" : "stick",
-        showHand: true,
-        hand: {
-          ...dealerHand,
-          cards: [...dealerHand.cards, ...drawnCards],
-          totalValue: handValue,
-        },
-      });
-      // If the dealer is bust then the player wins, if not, dealer wins
-      if (isBust) {
-        setPlayerIsIsWinner(true);
-        setPlayerScore(player.score + currentBet);
       } else {
-        setPlayerIsIsWinner(false);
-        setPlayerScore(player.score - currentBet);
+        const target = hand.totalValue + 1;
+        // Give the dealer a card until he busts or sticks
+        const { isBust, handValue, drawnCards } = drawUntil(
+          dealerHand.totalValue,
+          target
+        );
+        // Update the dealers data
+        setDealerData({
+          ...dealer,
+          status: isBust ? "bust" : "stick",
+          showHand: true,
+          hand: {
+            ...dealerHand,
+            cards: [...dealerHand.cards, ...drawnCards],
+            totalValue: handValue,
+          },
+        });
+        // If the dealer is bust then the player wins, if not, dealer wins
+        if (isBust) {
+          setPlayerIsIsWinner(true);
+          setPlayerScore(player.score + currentBet);
+        } else {
+          setPlayerIsIsWinner(false);
+          setPlayerScore(player.score - currentBet);
+        }
       }
     } else {
       setPlayerIsIsWinner(false);
@@ -130,6 +130,7 @@ export default function useBlackJack() {
     currentBet,
     setCurrentBet,
     endRound,
+    roundActive,
     player,
     dealer,
     startNewRound,
