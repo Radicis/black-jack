@@ -2,7 +2,7 @@
 
 # Motivation
 
-When tasked with creating a Black Jack game, I found that much of the functionality could be sbstrated into custom hooks. When i moved all of the fuinctionality into hooks i realised that the application consuming the hook was not the focus of this project but rather the hook. The hook was refined and tested with all projected functionality that any consumer could need. 
+When tasked with creating a Black Jack game, I found that much of the functionality could be abstrated into custom hooks. When I had moved all of the fuinctionality into hooks i realised that the application consuming the hook was not the focus of this project but rather the hook. The hook was refined and tested with all projected functionality that any consumer could need. 
 
 ## Features
 
